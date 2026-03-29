@@ -1,0 +1,19 @@
+# Optional: bash completion (not required for zsh, but okay)
+[[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && \
+  . "/opt/homebrew/etc/profile.d/bash_completion.sh"
+
+# Load posh-git-sh
+source ~/.posh-git-sh/git-prompt.sh
+
+# Enable zsh completion system
+autoload -Uz compinit
+compinit
+
+# Build prompt using posh-git
+precmd() {
+  __posh_git_ps1 '%n@%m:%~ ' ' $ '
+}
+
+# ----- Dotfiles -----
+source ~/Code/dotfiles/zsh/aliases
+[[ -f ~/Code/dotfiles/zsh/zshrc.local ]] && source ~/Code/dotfiles/zsh/zshrc.local

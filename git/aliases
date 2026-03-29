@@ -1,0 +1,44 @@
+[alias]
+
+# ----- Logging -----
+graph = log --graph --abbrev-commit --decorate --format=format:'%C(auto)%h%C(reset)%C(auto)%d%C(reset) %C(white)%s%C(reset) %C(bold blue)- %an%C(reset) %C(blue)(%ar)%C(reset)' --all
+ls = log --abbrev-commit --decorate --format=format:'%C(auto)%h%C(reset)%C(auto)%d%C(reset) %C(white)%s%C(reset) %C(bold blue)- %an%C(reset) %C(blue)(%ar)%C(reset)' --all
+who = shortlog -n -s --no-merges
+
+# ----- Status / Add -----
+s = status
+ss = status -sb
+a = add -A
+at = add -u
+
+# ----- Commit -----
+cm = commit -m
+ca = commit --amend
+cane = commit --amend --no-edit
+
+# ----- Branching (modern switch/restore) -----
+sw = switch
+swc = switch -c
+co = switch
+cob = switch -c
+br = branch -a
+bd = branch -d
+bdd = branch -D
+cleanbr = "!f() { b=$(git branch --merged main | grep -v '^[ *]*main$'); [ -n \"$b\" ] && echo \"$b\" | xargs git branch -d || echo 'No merged branches to clean.'; }; f"
+
+# ----- Remote -----
+f = fetch --prune
+fp = fetch --prune --all
+rbs = for-each-ref --sort=-committerdate --format='%(color:bold red)%(refname:short)%(color:reset) -> %(color:yellow)%(objectname:short)%(color:reset) %(contents:subject) - %(color:bold blue)%(authorname)%(color:reset) %(color:blue)(%(committerdate:relative))%(color:reset)' refs/remotes/origin/
+
+# ----- Diff -----
+wdiff = diff --word-diff
+wshow = show --word-diff
+
+# ----- Reset / Cleanup (explicitly destructive) -----
+hard = reset --hard
+nuke = "!git reset --hard && git clean -d -f"
+
+# ----- GitHub (macOS) -----
+open = "!f() { branch=$(git rev-parse --abbrev-ref HEAD); url=$(git remote get-url origin); url=${url%.git}; url=${url/git@github.com:/https://github.com/}; open \"$url/tree/$branch\"; }; f"
+pr = "!gh pr create --web"

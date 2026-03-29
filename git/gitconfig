@@ -1,0 +1,24 @@
+[user]
+    name = Jacob Stringfellow
+    email = stringfellow.jacob@gmail.com
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = true
+
+[rebase]
+    autoStash = true
+
+[fetch]
+    prune = true
+
+[credential]
+    helper = osxkeychain
+
+[include]
+    path = ~/Code/dotfiles/git/aliases
+
+[include]
+    path = ~/.gitconfig.local
