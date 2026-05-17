@@ -25,32 +25,55 @@ dotfiles/
 
 ## Setup on a New Machine
 
-1. **Clone the repo**
+### Quick Setup (Recommended)
+
+1. **Clone and run the setup script**
 
    ```sh
-   git clone https://github.com/jystringfellow/dotfiles.git ~/Code/dotfiles
+   git clone https://github.com/jystringfellow/dotfiles.git
+   cd dotfiles
+   ./setup.sh
    ```
 
-2. **Symlink your Git config**
+The script will automatically create symlinks, back up existing configs, and verify everything loads correctly.
+
+### Manual Setup
+
+If you prefer to set things up manually:
+
+1. **Clone the repository and jump to the repo directory**
 
    ```sh
-   ln -s ~/Code/dotfiles/git/gitconfig ~/.gitconfig
+   git clone https://github.com/jystringfellow/dotfiles.git
+   cd dotfiles
    ```
 
-3. **Symlink your zsh config**
+2. **Automatically detect location and set up symlinks**
 
    ```sh
-   ln -s ~/Code/dotfiles/zsh/zshrc ~/.zshrc
+   export DOTFILES_REPO=$(pwd)
+   
+   # Git
+   ln -s $DOTFILES_REPO/git/gitconfig ~/.gitconfig
+   ln -s $DOTFILES_REPO/git/aliases ~/.git-aliases
+   
+   # Zsh
+   ln -s $DOTFILES_REPO/zsh/zshrc ~/.zshrc
+   ln -s $DOTFILES_REPO/zsh/aliases ~/.zsh-aliases
    ```
 
-4. **Optional:** create local configs for machine-specific settings
+3. **Create local config files for machine-specific settings**
 
    ```sh
-   touch ~/Code/dotfiles/git/gitconfig.local
-   touch ~/Code/dotfiles/zsh/zshrc.local
+   touch $DOTFILES_REPO/git/gitconfig.local
+   touch $DOTFILES_REPO/zsh/zshrc.local
+   
+   # Symlink local configs (optional, for convenience)
+   ln -s $DOTFILES_REPO/git/gitconfig.local ~/.gitconfig.local
+   ln -s $DOTFILES_REPO/zsh/zshrc.local ~/.zshrc.local
    ```
 
-5. **Ensure GitHub CLI is installed** for `pr` and `open` aliases
+4. **Ensure GitHub CLI is installed** for `pr` and `open` aliases
 
    ```sh
    brew install gh
@@ -65,7 +88,8 @@ dotfiles/
 - `rebase.autoStash = true` — no conflicts with unstaged changes during rebase
 - `fetch.prune = true` — remove deleted remote branches automatically
 - `credential.helper = osxkeychain` — macOS credential storage
-- Separate `aliases` and `gitconfig.local` for maintainability
+- Git aliases sourced from `~/.git-aliases` (symlinked, repository-location independent)
+- Machine-specific overrides in `~/.gitconfig.local` (symlinked, untracked)
 
 ---
 
@@ -73,8 +97,8 @@ dotfiles/
 
 - Prompt powered by [posh-git-sh](https://github.com/lyze/posh-git-sh) — shows branch and status inline
 - Zsh completion system enabled via `compinit`
-- Shell aliases sourced from `zsh/aliases` (tracked)
-- Machine-specific overrides in `zsh/zshrc.local` (untracked, gitignored)
+- Shell aliases sourced from `~/.zsh-aliases` (symlinked, repository-location independent)
+- Machine-specific overrides in `~/.zshrc.local` (symlinked, untracked, gitignored)
 
 ---
 
@@ -95,6 +119,17 @@ Some of the most useful aliases included:
 | `open`     | Open current branch in GitHub    | Quick web link                 |
 
 See [git/aliases](git/aliases) for the full list.
+
+---
+
+## Why Symlink Everything?
+
+By symlinking **all** config files (not just the main `gitconfig` and `zshrc`), your configuration files remain **independent of the repository location**. This means:
+
+- If you clone to `/Volumes/Craig/Code/dotfiles` or `~/Code/dotfiles`, everything still works without changes
+- Your `gitconfig` and `zshrc` don't need hardcoded paths to the repository
+- Adding new machines or reorganizing directories doesn't require updates to config files
+- Clean separation of concerns: `gitconfig`/`zshrc` source from home directory symlinks, which point to the repository
 
 ---
 

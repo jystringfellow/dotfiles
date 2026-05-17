@@ -18,7 +18,7 @@
     helper = osxkeychain
 
 [include]
-    path = ~/Code/dotfiles/git/aliases
+    path = ~/.git-aliases
 
 [include]
     path = ~/.gitconfig.local
