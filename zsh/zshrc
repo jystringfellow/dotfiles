@@ -3,7 +3,7 @@
   . "/opt/homebrew/etc/profile.d/bash_completion.sh"
 
 # Load posh-git-sh
-source ~/.posh-git-sh/git-prompt.sh
+source ~/git-prompt.sh
 
 # Enable zsh completion system
 autoload -Uz compinit
@@ -15,5 +15,5 @@ precmd() {
 }
 
 # ----- Dotfiles -----
-source ~/Code/dotfiles/zsh/aliases
-[[ -f ~/Code/dotfiles/zsh/zshrc.local ]] && source ~/Code/dotfiles/zsh/zshrc.local
+source ~/.zsh-aliases
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
