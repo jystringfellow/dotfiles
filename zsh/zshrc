@@ -1,19 +1,27 @@
-# Optional: bash completion (not required for zsh, but okay)
-[[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && \
-  . "/opt/homebrew/etc/profile.d/bash_completion.sh"
+# ----- Homebrew -----
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
 
-# Load posh-git-sh
-source ~/git-prompt.sh
+# ----- Bash Completions -----
+[[ -r /opt/homebrew/etc/profile.d/bash_completion.sh ]] &&
+  source /opt/homebrew/etc/profile.d/bash_completion.sh
 
-# Enable zsh completion system
+# ----- Zsh Completion -----
 autoload -Uz compinit
 compinit
 
-# Build prompt using posh-git
-precmd() {
-  __posh_git_ps1 '%n@%m:%~ ' ' $ '
-}
+# ----- Prompt -----
+if [[ -f ~/git-prompt.sh ]]; then
+  source ~/git-prompt.sh
+
+  precmd() {
+    __posh_git_ps1 '%n@%m:%~ ' ' $ '
+  }
+fi
 
 # ----- Dotfiles -----
-source ~/.zsh-aliases
+[[ -f ~/.zsh-aliases ]] && source ~/.zsh-aliases
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
