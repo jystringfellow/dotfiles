@@ -25,6 +25,7 @@ br = branch -a
 bd = branch -d
 bdd = branch -D
 cleanbr = "!f() { b=$(git branch --merged main | grep -v '^[ *]*main$'); [ -n \"$b\" ] && echo \"$b\" | xargs git branch -d || echo 'No merged branches to clean.'; }; f"
+tidy = "!git checkout main && git pull && git cleanbr"
 
 # ----- Remote -----
 f = fetch --prune
