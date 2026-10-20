@@ -2,6 +2,7 @@
 
 # ----- Logging -----
 graph = log --graph --abbrev-commit --decorate --format=format:'%C(auto)%h%C(reset)%C(auto)%d%C(reset) %C(white)%s%C(reset) %C(bold blue)- %an%C(reset) %C(blue)(%ar)%C(reset)' --all
+g = graph
 ls = log --abbrev-commit --decorate --format=format:'%C(auto)%h%C(reset)%C(auto)%d%C(reset) %C(white)%s%C(reset) %C(bold blue)- %an%C(reset) %C(blue)(%ar)%C(reset)' --all
 who = shortlog -n -s --no-merges
 
@@ -22,24 +23,32 @@ swc = switch -c
 co = switch
 cob = switch -c
 br = branch -a
+b = branch -a
 bd = branch -d
 bdd = branch -D
 cleanbr = "!f() { b=$(git branch --merged main | grep -v '^[ *]*main$'); [ -n \"$b\" ] && echo \"$b\" | xargs git branch -d || echo 'No merged branches to clean.'; }; f"
+cbr = "!git cleanbr"
 tidy = "!git checkout main && git pull && git cleanbr"
 
 # ----- Remote -----
 f = fetch --prune
 fp = fetch --prune --all
 rbs = for-each-ref --sort=-committerdate --format='%(color:bold red)%(refname:short)%(color:reset) -> %(color:yellow)%(objectname:short)%(color:reset) %(contents:subject) - %(color:bold blue)%(authorname)%(color:reset) %(color:blue)(%(committerdate:relative))%(color:reset)' refs/remotes/origin/
+merged-rbs = "!git rbs --merged main | grep -Ev 'origin/(dev|release|master|main)'"
 
 # ----- Diff -----
 wdiff = diff --word-diff
 wshow = show --word-diff
 
+# ----- Config -----
+edit-config = config --global -e
+
 # ----- Reset / Cleanup (explicitly destructive) -----
 hard = reset --hard
+rr = reset --hard
+dd = clean -d -f
 nuke = "!git reset --hard && git clean -d -f"
 
-# ----- GitHub (macOS) -----
-open = "!f() { branch=$(git rev-parse --abbrev-ref HEAD); url=$(git remote get-url origin); url=${url%.git}; url=${url/git@github.com:/https://github.com/}; open \"$url/tree/$branch\"; }; f"
-pr = "!gh pr create --web"
+# ----- GitHub / Azure DevOps (macOS) -----
+open = "!f() { branch=$(git rev-parse --abbrev-ref HEAD); url=$(git remote get-url origin); url=${url%.git}; case \"$url\" in *dev.azure.com*|*visualstudio.com*) open \"$url?version=GB$branch\" ;; *) url=${url/git@github.com:/https://github.com/}; open \"$url/tree/$branch\" ;; esac; }; f"
+pr = "!f() { url=$(git remote get-url origin); case \"$url\" in *dev.azure.com*|*visualstudio.com*) open \"${url%.git}/pullrequestcreate?sourceRef=$(git rev-parse --abbrev-ref HEAD)\" ;; *) gh pr create --web ;; esac; }; f"

@@ -87,7 +87,7 @@ else
 fi
 
 # Check Zsh config
-if bash -c "source $HOME/.zshrc" 2>/dev/null; then
+if zsh -c "source $HOME/.zshrc" 2>/dev/null; then
   echo -e "${GREEN}✓ Zsh config loaded successfully${NC}"
 else
   echo -e "${RED}✗ Zsh config failed to load${NC}"

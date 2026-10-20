@@ -14,13 +14,17 @@ autoload -Uz compinit
 compinit
 
 # ----- Prompt -----
-if [[ -f ~/git-prompt.sh ]]; then
-  source ~/git-prompt.sh
+for posh_git_prompt in ~/.posh-git-sh/git-prompt.sh ~/git-prompt.sh; do
+  if [[ -f $posh_git_prompt ]]; then
+    source $posh_git_prompt
 
-  precmd() {
-    __posh_git_ps1 '%n@%m:%~ ' ' $ '
-  }
-fi
+    precmd() {
+      __posh_git_ps1 '%n@%m:%~ ' ' $ '
+    }
+    break
+  fi
+done
+unset posh_git_prompt
 
 # ----- Dotfiles -----
 [[ -f ~/.zsh-aliases ]] && source ~/.zsh-aliases
