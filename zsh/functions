@@ -1,0 +1,222 @@
+workspace-pull() {
+  local workspace="${1:-}"
+  local mode="${2:-}"
+
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "workspace-pull requires jq. Install it with: brew install jq"
+    return 1
+  fi
+
+  if [ -z "$workspace" ]; then
+    echo "Usage: workspace-pull <path-to-workspace> [--rebase-default|--merge-default]"
+    return 1
+  fi
+
+  case "$mode" in
+    "")
+      mode="fetch-default"
+      ;;
+    "--rebase-default")
+      mode="rebase-default"
+      ;;
+    "--merge-default")
+      mode="merge-default"
+      ;;
+    *)
+      echo "Unknown option: $mode"
+      echo "Usage: workspace-pull <path-to-workspace> [--rebase-default|--merge-default]"
+      return 1
+      ;;
+  esac
+
+  if [ ! -f "$workspace" ]; then
+    echo "Workspace file not found: $workspace"
+    return 1
+  fi
+
+  local base=""
+  base="$(cd "$(dirname "$workspace")" && pwd)"
+
+  jq -r '.folders[] | select(.path != null) | .path' "$workspace" | while read -r relpath; do
+    local repo_path=""
+
+    if [[ "$relpath" = /* ]]; then
+      repo_path="$relpath"
+    else
+      repo_path="$base/$relpath"
+    fi
+
+    repo_path="$(cd "$repo_path" 2>/dev/null && pwd)" || {
+      echo "==> $relpath"
+      echo "    skipped: path not found"
+      continue
+    }
+
+    if ! git -C "$repo_path" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      echo "==> $repo_path"
+      echo "    skipped: not a git repo"
+      continue
+    fi
+
+    local current_branch=""
+    current_branch="$(git -C "$repo_path" branch --show-current 2>/dev/null)"
+
+    local default_branch=""
+    default_branch="$(
+      git -C "$repo_path" symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null \
+        | sed 's#^origin/##'
+    )"
+
+    if [ -z "$default_branch" ]; then
+      default_branch="$(
+        git -C "$repo_path" remote show origin 2>/dev/null \
+          | sed -n 's/.*HEAD branch: //p'
+      )"
+    fi
+
+    if [ -z "$default_branch" ]; then
+      echo "==> $repo_path"
+      echo "    skipped: could not determine origin default branch"
+      continue
+    fi
+
+    local dirty=""
+    dirty="$(git -C "$repo_path" status --porcelain)"
+
+    echo "==> $repo_path"
+
+    if [ -n "$dirty" ]; then
+      echo "    branch: ${current_branch:-detached HEAD}"
+      echo "    dirty working tree; not pulling into current branch"
+      echo "    fetching origin/$default_branch"
+
+      git -C "$repo_path" fetch origin "+refs/heads/${default_branch}:refs/remotes/origin/${default_branch}" || {
+        echo "    failed to fetch origin/$default_branch"
+        continue
+      }
+
+      if [ "$current_branch" = "$default_branch" ]; then
+        echo "    current branch is $default_branch; leaving local branch unchanged because working tree is dirty"
+        continue
+      fi
+
+      if git -C "$repo_path" show-ref --verify --quiet "refs/heads/${default_branch}"; then
+        if git -C "$repo_path" merge-base --is-ancestor \
+          "refs/heads/${default_branch}" \
+          "refs/remotes/origin/${default_branch}"; then
+
+          if git -C "$repo_path" branch -f "$default_branch" "origin/$default_branch" >/dev/null 2>&1; then
+            echo "    fast-forwarded local $default_branch to origin/$default_branch"
+          else
+            echo "    fetched origin/$default_branch; could not update local $default_branch"
+          fi
+        else
+          echo "    local $default_branch has diverged from origin/$default_branch; leaving it unchanged"
+        fi
+      else
+        if git -C "$repo_path" branch --track "$default_branch" "origin/$default_branch" >/dev/null 2>&1; then
+          echo "    created local $default_branch tracking origin/$default_branch"
+        else
+          echo "    fetched origin/$default_branch"
+        fi
+      fi
+
+      continue
+    fi
+
+    if [ -z "$current_branch" ]; then
+      echo "    skipped: detached HEAD"
+      continue
+    fi
+
+    echo "    branch: $current_branch"
+
+    if [ "$current_branch" = "$default_branch" ]; then
+      git -C "$repo_path" pull --ff-only origin "$default_branch"
+      continue
+    fi
+
+    if git -C "$repo_path" rev-parse --abbrev-ref --symbolic-full-name '@{u}' >/dev/null 2>&1; then
+      echo "    pulling current branch from upstream"
+
+      git -C "$repo_path" pull --ff-only || {
+        echo "    failed to fast-forward current branch"
+        continue
+      }
+    else
+      echo "    no upstream configured for $current_branch"
+    fi
+
+    echo "    fetching origin/$default_branch"
+
+    git -C "$repo_path" fetch origin "+refs/heads/${default_branch}:refs/remotes/origin/${default_branch}" || {
+      echo "    failed to fetch origin/$default_branch"
+      continue
+    }
+
+    if git -C "$repo_path" show-ref --verify --quiet "refs/heads/${default_branch}"; then
+      if git -C "$repo_path" merge-base --is-ancestor \
+        "refs/heads/${default_branch}" \
+        "refs/remotes/origin/${default_branch}"; then
+
+        git -C "$repo_path" branch -f "$default_branch" "origin/$default_branch" >/dev/null 2>&1 && {
+          echo "    fast-forwarded local $default_branch to origin/$default_branch"
+        }
+      else
+        echo "    local $default_branch has diverged from origin/$default_branch; leaving it unchanged"
+      fi
+    else
+      git -C "$repo_path" branch --track "$default_branch" "origin/$default_branch" >/dev/null 2>&1 && {
+        echo "    created local $default_branch tracking origin/$default_branch"
+      }
+    fi
+
+    if [ "$mode" = "rebase-default" ]; then
+      local dirty_after_pull=""
+      dirty_after_pull="$(git -C "$repo_path" status --porcelain)"
+
+      if [ -n "$dirty_after_pull" ]; then
+        echo "    skipped rebase: working tree became dirty"
+        continue
+      fi
+
+      echo "    rebasing $current_branch onto origin/$default_branch"
+
+      if git -C "$repo_path" rebase "origin/$default_branch"; then
+        echo "    rebased $current_branch onto origin/$default_branch"
+      else
+        echo "    conflict while rebasing; aborting rebase"
+
+        git -C "$repo_path" rebase --abort >/dev/null 2>&1 || {
+          echo "    warning: failed to abort rebase cleanly; inspect manually"
+          continue
+        }
+
+        echo "    left $current_branch unchanged"
+      fi
+    elif [ "$mode" = "merge-default" ]; then
+      local dirty_after_pull=""
+      dirty_after_pull="$(git -C "$repo_path" status --porcelain)"
+
+      if [ -n "$dirty_after_pull" ]; then
+        echo "    skipped merge: working tree became dirty"
+        continue
+      fi
+
+      echo "    merging origin/$default_branch into $current_branch"
+
+      if git -C "$repo_path" merge --no-edit "origin/$default_branch"; then
+        echo "    merged origin/$default_branch into $current_branch"
+      else
+        echo "    conflict while merging; aborting merge"
+
+        git -C "$repo_path" merge --abort >/dev/null 2>&1 || {
+          echo "    warning: failed to abort merge cleanly; inspect manually"
+          continue
+        }
+
+        echo "    left $current_branch unchanged"
+      fi
+    fi
+  done
+}

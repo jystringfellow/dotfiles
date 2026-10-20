@@ -16,6 +16,7 @@ dotfiles/
 └── zsh/
     ├── zshrc             # Main zsh config (tracked)
     ├── aliases           # Shell aliases (tracked)
+    ├── functions         # Shell functions (tracked)
     └── zshrc.local       # Machine-specific overrides (untracked)
 ```
 
@@ -60,6 +61,7 @@ If you prefer to set things up manually:
    # Zsh
    ln -s $DOTFILES_REPO/zsh/zshrc ~/.zshrc
    ln -s $DOTFILES_REPO/zsh/aliases ~/.zsh-aliases
+   ln -s $DOTFILES_REPO/zsh/functions ~/.zsh-functions
    ```
 
 3. **Create local config files for machine-specific settings**
@@ -98,6 +100,7 @@ If you prefer to set things up manually:
 - Prompt powered by [posh-git-sh](https://github.com/lyze/posh-git-sh) — shows branch and status inline
 - Zsh completion system enabled via `compinit`
 - Shell aliases sourced from `~/.zsh-aliases` (symlinked, repository-location independent)
+- Shell functions sourced from `~/.zsh-functions` (symlinked), including `workspace-pull` to sync every repo in a VS Code `.code-workspace` (requires `jq`)
 - Machine-specific overrides in `~/.zshrc.local` (symlinked, untracked, gitignored)
 
 ---

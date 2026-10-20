@@ -28,4 +28,5 @@ unset posh_git_prompt
 
 # ----- Dotfiles -----
 [[ -f ~/.zsh-aliases ]] && source ~/.zsh-aliases
+[[ -f ~/.zsh-functions ]] && source ~/.zsh-functions
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
