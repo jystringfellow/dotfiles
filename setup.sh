@@ -47,11 +47,13 @@ create_symlink() {
 echo -e "${YELLOW}Setting up Git configuration...${NC}"
 create_symlink "$DOTFILES_REPO/git/gitconfig" "$HOME/.gitconfig"
 create_symlink "$DOTFILES_REPO/git/aliases" "$HOME/.git-aliases"
+create_symlink "$DOTFILES_REPO/git/gitconfig.personal" "$HOME/.gitconfig.personal"
 
 # Create symlinks for Zsh config
 echo -e "${YELLOW}Setting up Zsh configuration...${NC}"
 create_symlink "$DOTFILES_REPO/zsh/zshrc" "$HOME/.zshrc"
 create_symlink "$DOTFILES_REPO/zsh/aliases" "$HOME/.zsh-aliases"
+create_symlink "$DOTFILES_REPO/zsh/functions" "$HOME/.zsh-functions"
 
 # Create local config files if they don't exist
 echo -e "${YELLOW}Setting up local configuration files...${NC}"
@@ -87,7 +89,7 @@ else
 fi
 
 # Check Zsh config
-if bash -c "source $HOME/.zshrc" 2>/dev/null; then
+if zsh -c "source $HOME/.zshrc" 2>/dev/null; then
   echo -e "${GREEN}✓ Zsh config loaded successfully${NC}"
 else
   echo -e "${RED}✗ Zsh config failed to load${NC}"
@@ -99,8 +101,10 @@ echo -e "${GREEN}=== Setup Complete ===${NC}"
 echo "Your configuration is now symlinked to:"
 echo "  ~/.gitconfig -> $DOTFILES_REPO/git/gitconfig"
 echo "  ~/.git-aliases -> $DOTFILES_REPO/git/aliases"
+echo "  ~/.gitconfig.personal -> $DOTFILES_REPO/git/gitconfig.personal"
 echo "  ~/.zshrc -> $DOTFILES_REPO/zsh/zshrc"
 echo "  ~/.zsh-aliases -> $DOTFILES_REPO/zsh/aliases"
+echo "  ~/.zsh-functions -> $DOTFILES_REPO/zsh/functions"
 echo ""
 echo "Local configuration files (machine-specific):"
 echo "  $DOTFILES_REPO/git/gitconfig.local"

@@ -12,10 +12,12 @@ dotfiles/
 ├── git/
 │   ├── gitconfig         # Base Git config (tracked)
 │   ├── aliases           # Git aliases (tracked)
+│   ├── gitconfig.personal # Personal identity for includeIf (tracked)
 │   └── gitconfig.local   # Machine/work-specific overrides (untracked)
 └── zsh/
     ├── zshrc             # Main zsh config (tracked)
     ├── aliases           # Shell aliases (tracked)
+    ├── functions         # Shell functions (tracked)
     └── zshrc.local       # Machine-specific overrides (untracked)
 ```
 
@@ -56,10 +58,12 @@ If you prefer to set things up manually:
    # Git
    ln -s $DOTFILES_REPO/git/gitconfig ~/.gitconfig
    ln -s $DOTFILES_REPO/git/aliases ~/.git-aliases
+   ln -s $DOTFILES_REPO/git/gitconfig.personal ~/.gitconfig.personal
    
    # Zsh
    ln -s $DOTFILES_REPO/zsh/zshrc ~/.zshrc
    ln -s $DOTFILES_REPO/zsh/aliases ~/.zsh-aliases
+   ln -s $DOTFILES_REPO/zsh/functions ~/.zsh-functions
    ```
 
 3. **Create local config files for machine-specific settings**
@@ -90,6 +94,21 @@ If you prefer to set things up manually:
 - `credential.helper = osxkeychain` — macOS credential storage
 - Git aliases sourced from `~/.git-aliases` (symlinked, repository-location independent)
 - Machine-specific overrides in `~/.gitconfig.local` (symlinked, untracked)
+- No email is tracked and `user.useConfigOnly = true`, so commits fail until `~/.gitconfig.local` picks an identity:
+
+  ```ini
+  # Personal machine
+  [include]
+      path = ~/.gitconfig.personal
+
+  # Work machine: work email by default, personal only for personal remotes
+  [user]
+      email = me@work.example
+  [includeIf "hasconfig:remote.*.url:https://github.com/jystringfellow/**"]
+      path = ~/.gitconfig.personal
+  [includeIf "hasconfig:remote.*.url:git@github.com:jystringfellow/**"]
+      path = ~/.gitconfig.personal
+  ```
 
 ---
 
@@ -98,6 +117,7 @@ If you prefer to set things up manually:
 - Prompt powered by [posh-git-sh](https://github.com/lyze/posh-git-sh) — shows branch and status inline
 - Zsh completion system enabled via `compinit`
 - Shell aliases sourced from `~/.zsh-aliases` (symlinked, repository-location independent)
+- Shell functions sourced from `~/.zsh-functions` (symlinked), including `workspace-pull` to sync every repo in a VS Code `.code-workspace` (requires `jq`)
 - Machine-specific overrides in `~/.zshrc.local` (symlinked, untracked, gitignored)
 
 ---
@@ -137,7 +157,7 @@ By symlinking **all** config files (not just the main `gitconfig` and `zshrc`), 
 
 - **Base configs** — safe for all machines and repositories
 - **`gitconfig.local`** / **`zshrc.local`** — machine- or work-specific overrides (never tracked)
-- Supports multiple Git identities via `includeIf` for personal vs. work directories
+- Supports multiple Git identities via `includeIf` for personal vs. work remotes
 
 ---
 
