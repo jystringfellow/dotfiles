@@ -12,6 +12,7 @@ dotfiles/
 ├── git/
 │   ├── gitconfig         # Base Git config (tracked)
 │   ├── aliases           # Git aliases (tracked)
+│   ├── gitconfig.personal # Personal identity for includeIf (tracked)
 │   └── gitconfig.local   # Machine/work-specific overrides (untracked)
 └── zsh/
     ├── zshrc             # Main zsh config (tracked)
@@ -57,6 +58,7 @@ If you prefer to set things up manually:
    # Git
    ln -s $DOTFILES_REPO/git/gitconfig ~/.gitconfig
    ln -s $DOTFILES_REPO/git/aliases ~/.git-aliases
+   ln -s $DOTFILES_REPO/git/gitconfig.personal ~/.gitconfig.personal
    
    # Zsh
    ln -s $DOTFILES_REPO/zsh/zshrc ~/.zshrc
@@ -92,6 +94,12 @@ If you prefer to set things up manually:
 - `credential.helper = osxkeychain` — macOS credential storage
 - Git aliases sourced from `~/.git-aliases` (symlinked, repository-location independent)
 - Machine-specific overrides in `~/.gitconfig.local` (symlinked, untracked)
+- On a work machine, personal repos can use the personal email and GitHub account by adding to `~/.gitconfig.local`:
+
+  ```ini
+  [includeIf "gitdir:~/Code/dotfiles/"]
+      path = ~/.gitconfig.personal
+  ```
 
 ---
 

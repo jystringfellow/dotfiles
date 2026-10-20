@@ -47,6 +47,7 @@ create_symlink() {
 echo -e "${YELLOW}Setting up Git configuration...${NC}"
 create_symlink "$DOTFILES_REPO/git/gitconfig" "$HOME/.gitconfig"
 create_symlink "$DOTFILES_REPO/git/aliases" "$HOME/.git-aliases"
+create_symlink "$DOTFILES_REPO/git/gitconfig.personal" "$HOME/.gitconfig.personal"
 
 # Create symlinks for Zsh config
 echo -e "${YELLOW}Setting up Zsh configuration...${NC}"
@@ -100,6 +101,7 @@ echo -e "${GREEN}=== Setup Complete ===${NC}"
 echo "Your configuration is now symlinked to:"
 echo "  ~/.gitconfig -> $DOTFILES_REPO/git/gitconfig"
 echo "  ~/.git-aliases -> $DOTFILES_REPO/git/aliases"
+echo "  ~/.gitconfig.personal -> $DOTFILES_REPO/git/gitconfig.personal"
 echo "  ~/.zshrc -> $DOTFILES_REPO/zsh/zshrc"
 echo "  ~/.zsh-aliases -> $DOTFILES_REPO/zsh/aliases"
 echo "  ~/.zsh-functions -> $DOTFILES_REPO/zsh/functions"
