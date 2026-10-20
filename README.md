@@ -94,10 +94,19 @@ If you prefer to set things up manually:
 - `credential.helper = osxkeychain` — macOS credential storage
 - Git aliases sourced from `~/.git-aliases` (symlinked, repository-location independent)
 - Machine-specific overrides in `~/.gitconfig.local` (symlinked, untracked)
-- On a work machine, personal repos can use the personal email and GitHub account by adding to `~/.gitconfig.local`:
+- No email is tracked and `user.useConfigOnly = true`, so commits fail until `~/.gitconfig.local` picks an identity:
 
   ```ini
-  [includeIf "gitdir:~/Code/dotfiles/"]
+  # Personal machine
+  [include]
+      path = ~/.gitconfig.personal
+
+  # Work machine: work email by default, personal only for personal remotes
+  [user]
+      email = me@work.example
+  [includeIf "hasconfig:remote.*.url:https://github.com/jystringfellow/**"]
+      path = ~/.gitconfig.personal
+  [includeIf "hasconfig:remote.*.url:git@github.com:jystringfellow/**"]
       path = ~/.gitconfig.personal
   ```
 
@@ -148,7 +157,7 @@ By symlinking **all** config files (not just the main `gitconfig` and `zshrc`), 
 
 - **Base configs** — safe for all machines and repositories
 - **`gitconfig.local`** / **`zshrc.local`** — machine- or work-specific overrides (never tracked)
-- Supports multiple Git identities via `includeIf` for personal vs. work directories
+- Supports multiple Git identities via `includeIf` for personal vs. work remotes
 
 ---
 

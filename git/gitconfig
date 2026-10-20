@@ -1,6 +1,6 @@
 [user]
     name = Jacob Stringfellow
-    email = 51200908+jystringfellow@users.noreply.github.com
+    useConfigOnly = true
 
 [init]
     defaultBranch = main
