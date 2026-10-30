@@ -26,7 +26,7 @@ br = branch -a
 b = branch -a
 bd = branch -d
 bdd = branch -D
-cleanbr = "!f() { b=$(git branch --merged main | grep -v '^[ *]*main$'); [ -n \"$b\" ] && echo \"$b\" | xargs git branch -d || echo 'No merged branches to clean.'; }; f"
+cleanbr = "!f() { b=$(git for-each-ref --merged main --format='%(if)%(worktreepath)%(then)%(else)%(refname:short)%(end)' refs/heads | grep -vx -e main -e ''); [ -n \"$b\" ] && echo \"$b\" | xargs git branch -d || echo 'No merged branches to clean.'; }; f"
 cbr = "!git cleanbr"
 tidy = "!git checkout main && git pull && git cleanbr"
 
