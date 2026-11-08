@@ -28,7 +28,7 @@ bd = branch -d
 bdd = branch -D
 cleanbr = "!f() { b=$(git for-each-ref --merged main --format='%(if)%(worktreepath)%(then)%(else)%(refname:short)%(end)' refs/heads | grep -vx -e main -e ''); [ -n \"$b\" ] && echo \"$b\" | xargs git branch -d || echo 'No merged branches to clean.'; }; f"
 cbr = "!git cleanbr"
-tidy = "!git checkout main && git pull && git cleanbr"
+tidy = "!f() { wt=$(git for-each-ref --format='%(worktreepath)' refs/heads/main); if [ -z \"$wt\" ]; then git switch main && git pull; else echo \"Updating main in $wt\" && (unset GIT_DIR GIT_WORK_TREE; git -C \"$wt\" pull); fi && git cleanbr; }; f"
 
 # ----- Remote -----
 f = fetch --prune
