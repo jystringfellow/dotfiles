@@ -9,6 +9,8 @@ Designed for **easy setup on new machines** and safe separation of personal vs. 
 
 ```text
 dotfiles/
+├── Brewfile              # Homebrew packages for every machine (tracked)
+├── Brewfile.local        # Machine-specific Homebrew packages (untracked)
 ├── git/
 │   ├── gitconfig         # Base Git config (tracked)
 │   ├── aliases           # Git aliases (tracked)
@@ -37,7 +39,7 @@ dotfiles/
    ./setup.sh
    ```
 
-The script will automatically create symlinks, back up existing configs, and verify everything loads correctly.
+Install [Homebrew](https://brew.sh) first. The script installs the packages in `Brewfile` (and `Brewfile.local`, if present), creates symlinks, backs up existing configs, and verifies everything loads correctly. Packages that are already installed are left at their current versions.
 
 ### Manual Setup
 
@@ -77,10 +79,10 @@ If you prefer to set things up manually:
    ln -s $DOTFILES_REPO/zsh/zshrc.local ~/.zshrc.local
    ```
 
-4. **Ensure GitHub CLI is installed** for `pr` and `open` aliases
+4. **Install Homebrew packages** and authenticate the GitHub CLI for the `pr` alias
 
    ```sh
-   brew install gh
+   brew bundle install --file=$DOTFILES_REPO/Brewfile
    gh auth login
    ```
 
