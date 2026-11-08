@@ -137,6 +137,8 @@ Some of the most useful aliases included:
 | `cm` / `ca`| `commit -m` / `commit --amend`   | Commit shorthand               |
 | `sw` / `swc`| `switch` / `switch -c`          | Modern checkout commands       |
 | `cleanbr`  | Remove merged branches safely    | Cleanup old branches           |
+| `tidy`     | Update `main`, prune, clean      | Post-merge cleanup from any worktree |
+| `stalewt`  | List worktrees with nothing beyond `main` | Find finished worktrees to remove |
 | `pr`       | `gh pr create --web`             | Open GitHub PR in browser      |
 | `open`     | Open current branch in GitHub    | Quick web link                 |
 
