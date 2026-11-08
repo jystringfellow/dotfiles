@@ -55,6 +55,16 @@ create_symlink "$DOTFILES_REPO/zsh/zshrc" "$HOME/.zshrc"
 create_symlink "$DOTFILES_REPO/zsh/aliases" "$HOME/.zsh-aliases"
 create_symlink "$DOTFILES_REPO/zsh/functions" "$HOME/.zsh-functions"
 
+# Install posh-git-sh prompt
+echo -e "${YELLOW}Setting up posh-git prompt...${NC}"
+if [[ -f "$HOME/.posh-git-sh/git-prompt.sh" || -f "$HOME/git-prompt.sh" ]]; then
+  echo -e "${GREEN}✓ posh-git-sh already installed${NC}"
+elif git clone -q --depth 1 https://github.com/lyze/posh-git-sh.git "$HOME/.posh-git-sh"; then
+  echo -e "${GREEN}✓ Installed posh-git-sh to $HOME/.posh-git-sh${NC}"
+else
+  echo -e "${RED}✗ Could not install posh-git-sh; the prompt will not show git status${NC}"
+fi
+
 # Create local config files if they don't exist
 echo -e "${YELLOW}Setting up local configuration files...${NC}"
 if [[ ! -e "$DOTFILES_REPO/git/gitconfig.local" ]]; then
