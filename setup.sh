@@ -43,6 +43,27 @@ create_symlink() {
   echo -e "${GREEN}✓ Symlinked: $target -> $source${NC}"
 }
 
+# Install Homebrew packages
+install_brewfile() {
+  local brewfile=$1
+  [[ -f "$brewfile" ]] || return 0
+  if brew bundle check --file="$brewfile" &>/dev/null; then
+    echo -e "${GREEN}✓ Already installed: $brewfile${NC}"
+  elif brew bundle install --file="$brewfile"; then
+    echo -e "${GREEN}✓ Installed: $brewfile${NC}"
+  else
+    echo -e "${RED}✗ Some packages failed to install from $brewfile${NC}"
+  fi
+}
+
+echo -e "${YELLOW}Setting up Homebrew packages...${NC}"
+if command -v brew &>/dev/null; then
+  install_brewfile "$DOTFILES_REPO/Brewfile"
+  install_brewfile "$DOTFILES_REPO/Brewfile.local"
+else
+  echo -e "${RED}✗ Homebrew not found; skipping packages. Install it from https://brew.sh and re-run setup.${NC}"
+fi
+
 # Create symlinks for Git config
 echo -e "${YELLOW}Setting up Git configuration...${NC}"
 create_symlink "$DOTFILES_REPO/git/gitconfig" "$HOME/.gitconfig"
@@ -113,4 +134,4 @@ echo ""
 echo "Next steps:"
 echo "  1. Edit gitconfig.local and zshrc.local for machine-specific settings"
 echo "  2. Run: source $HOME/.zshrc to reload your shell"
-echo "  3. (Optional) Install GitHub CLI: brew install gh && gh auth login"
+echo "  3. (Optional) Authenticate GitHub CLI: gh auth login"
