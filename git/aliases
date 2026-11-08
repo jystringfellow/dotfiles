@@ -28,7 +28,8 @@ bd = branch -d
 bdd = branch -D
 cleanbr = "!f() { b=$(git for-each-ref --merged main --format='%(if)%(worktreepath)%(then)%(else)%(refname:short)%(end)' refs/heads | grep -vx -e main -e ''); [ -n \"$b\" ] && echo \"$b\" | xargs git branch -d || echo 'No merged branches to clean.'; }; f"
 cbr = "!git cleanbr"
-tidy = "!f() { wt=$(git for-each-ref --format='%(worktreepath)' refs/heads/main); if [ -z \"$wt\" ]; then git switch main && git pull; else echo \"Updating main in $wt\" && (unset GIT_DIR GIT_WORK_TREE; git -C \"$wt\" pull); fi && git cleanbr; }; f"
+tidy = "!f() { git worktree prune -v && wt=$(git for-each-ref --format='%(worktreepath)' refs/heads/main); if [ -z \"$wt\" ]; then git switch main && git pull; else echo \"Updating main in $wt\" && (unset GIT_DIR GIT_WORK_TREE; git -C \"$wt\" pull); fi && git cleanbr && git stalewt; }; f"
+stalewt = "!f() { unset GIT_DIR GIT_WORK_TREE; found=; git worktree list --porcelain | { while read -r k v; do case \"$k\" in worktree) p=$v; h=; b=;; HEAD) h=$v;; branch) b=${v#refs/heads/};; '') [ \"$b\" = main ] || [ -z \"$h\" ] || ! git merge-base --is-ancestor \"$h\" main || { [ -z \"$found\" ] && echo 'Worktrees with nothing beyond main (git worktree remove <path> when done):'; found=1; [ -n \"$(git -C \"$p\" status --porcelain 2>/dev/null)\" ] && d=' (uncommitted changes)' || d=; echo \"  $p [${b:-detached}]$d\"; };; esac; done; [ -n \"$found\" ] || echo 'No finished worktrees.'; }; }; f"
 
 # ----- Remote -----
 f = fetch --prune
