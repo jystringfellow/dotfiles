@@ -114,7 +114,7 @@ If you prefer to set things up manually:
 
 ## Zsh Config Highlights
 
-- Prompt powered by [posh-git-sh](https://github.com/lyze/posh-git-sh) — shows branch and status inline
+- Prompt powered by [posh-git-sh](https://github.com/lyze/posh-git-sh) — shows branch and status inline; `setup.sh` installs it to `~/.posh-git-sh` if missing
 - Zsh completion system enabled via `compinit`
 - Shell aliases sourced from `~/.zsh-aliases` (symlinked, repository-location independent)
 - Shell functions sourced from `~/.zsh-functions` (symlinked), including `workspace-pull` to sync every repo in a VS Code `.code-workspace` (requires `jq`)
